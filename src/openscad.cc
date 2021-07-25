@@ -475,7 +475,7 @@ int do_export(const CommandLine &cmd, const RenderVariables& render_variables, F
 #endif
 
 	AbstractNode::resetIndexCounter();
-	std::shared_ptr<FileContext> file_context;
+	std::shared_ptr<const FileContext> file_context;
 	AbstractNode *absolute_root_node = root_file->instantiate(*builtin_context, &file_context);
 	Camera camera = cmd.camera;
 	if (file_context) {
@@ -618,7 +618,7 @@ int do_export(const CommandLine &cmd, const RenderVariables& render_variables, F
 #include <QtPlugin>
 #include "MainWindow.h"
 #include "OpenSCADApp.h"
-#include "launchingscreen.h"
+#include "LaunchingScreen.h"
 #include "QSettingsCached.h"
 #include "input/InputDriverManager.h"
 #ifdef ENABLE_HIDAPI
@@ -645,7 +645,7 @@ int do_export(const CommandLine &cmd, const RenderVariables& render_variables, F
 #include <QProgressDialog>
 #include <QFutureWatcher>
 #include <QtConcurrentRun>
-#include "settings.h"
+#include "Settings.h"
 
 Q_DECLARE_METATYPE(Message);
 Q_DECLARE_METATYPE(shared_ptr<const Geometry>);
@@ -934,9 +934,8 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef ENABLE_CGAL
-	// Causes CGAL errors to abort directly instead of throwing exceptions
-	// (which we don't catch). This gives us stack traces without rerunning in gdb.
-	CGAL::set_error_behaviour(CGAL::ABORT);
+	// Always throw exceptions from CGAL, so we can catch instead of crashing on bad geometry.
+	CGAL::set_error_behaviour(CGAL::THROW_EXCEPTION);
 #endif
 	Builtins::instance()->initialize();
 
@@ -988,7 +987,7 @@ int main(int argc, char **argv)
 		("hardwarnings", "Stop on the first warning")
 		("check-parameters", po::value<string>(), "=true/false, configure the parameter check for user modules and functions")
 		("check-parameter-ranges", po::value<string>(), "=true/false, configure the parameter range check for builtin modules")
-		("debug", po::value<string>(), "special debug info")
+		("debug", po::value<string>(), "special debug info - specify \"all\" or a set of source file names")
 		("s,s", po::value<string>(), "stl_file deprecated, use -o")
 		("x,x", po::value<string>(), "dxf_file deprecated, use -o")
 		;
