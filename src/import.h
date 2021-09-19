@@ -9,3 +9,4 @@ class Polygon2d *import_svg(const std::string &filename, const double dpi, const
 #ifdef ENABLE_CGAL
 class CGAL_Nef_polyhedron *import_nef3(const std::string &filename, const Location &loc);
 #endif
+class Value import_json(const std::string& filename, class EvaluationSession *session, const Location& loc);
